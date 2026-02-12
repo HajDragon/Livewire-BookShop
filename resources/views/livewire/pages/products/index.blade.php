@@ -107,7 +107,7 @@
                     </flux:button>
 
                     <flux:text size="sm" class="mt-4 text-center text-gray-500">
-                        Secure payment via Mollie
+                        Secure payment via Stripe
                     </flux:text>
                 </flux:card>
             </div>

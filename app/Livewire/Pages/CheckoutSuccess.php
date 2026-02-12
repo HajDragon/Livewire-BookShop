@@ -11,14 +11,14 @@ use Livewire\Component;
 #[Title('Order Confirmed')]
 class CheckoutSuccess extends Component
 {
-    public ?string $paymentId = null;
+    public ?string $sessionId = null;
     public ?Order $order = null;
 
     public function mount()
     {
-        $this->paymentId = request('payment_id');
+        $this->sessionId = request('session_id');
 
-        if ($this->paymentId) {
+        if ($this->sessionId) {
             $this->processCheckout();
         }
     }
@@ -26,25 +26,26 @@ class CheckoutSuccess extends Component
     protected function processCheckout()
     {
         try {
-            $mollie = \Mollie\Laravel\Facades\Mollie::api();
-            $payment = $mollie->payments->get($this->paymentId);
+            \Stripe\Stripe::setApiKey(config('cashier.secret'));
+
+            $session = \Stripe\Checkout\Session::retrieve($this->sessionId);
 
             // Check if payment is successful
-            if (!$payment->isPaid()) {
+            if ($session->payment_status !== 'paid') {
                 session()->flash('error', 'Payment not completed');
                 return;
             }
 
             // Check if order already exists
-            $existingOrder = Order::where('stripe_payment_intent_id', $payment->id)->first();
+            $existingOrder = Order::where('stripe_payment_intent_id', $session->payment_intent)->first();
 
             if ($existingOrder) {
                 $this->order = $existingOrder;
                 return;
             }
 
-            // Get cart from payment metadata
-            $cartId = $payment->metadata->cart_id ?? null;
+            // Get cart from session metadata
+            $cartId = $session->metadata->cart_id ?? null;
 
             if (!$cartId) {
                 return;
@@ -59,7 +60,7 @@ class CheckoutSuccess extends Component
             // Create order
             $this->order = Order::create([
                 'user_id' => auth()->id(),
-                'stripe_payment_intent_id' => $payment->id,
+                'stripe_payment_intent_id' => $session->payment_intent,
                 'status' => 'completed',
                 'total' => $cart->total(),
             ]);

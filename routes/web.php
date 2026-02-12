@@ -28,7 +28,4 @@ Route::get('/myorders', \App\Livewire\Pages\MyOrders::class)
     ->middleware(['auth', 'verified'])
     ->name('myorders');
 
-Route::post('/webhook/mollie', [App\Http\Controllers\MollieWebhookController::class, 'handle'])
-    ->name('mollie.webhook');
-
 require __DIR__.'/settings.php';
