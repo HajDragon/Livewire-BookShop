@@ -12,17 +12,20 @@ use Livewire\Component;
 #[Title('Shopping Cart')]
 class Index extends Component
 {
+    public float $tax = 0;
     public ?Cart $cart = null;
 
     public function mount()
     {
         $this->loadCart();
+
     }
 
     #[On('cart-updated')]
     public function loadCart()
     {
         $this->cart = auth()->user()->cart()->with('items.book')->first();
+        $this->calculateTax();
     }
 
     public function updateQuantity(int $cartItemId, int $quantity)
@@ -77,7 +80,7 @@ class Index extends Component
                 'line_items' => $lineItems,
                 'mode' => 'payment',
                 'success_url' => route('checkout.success') . '?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => route('products'),
+                'cancel_url' => route('cart'),
                 'metadata' => [
                     'cart_id' => $this->cart->id,
                     'user_id' => auth()->id(),
@@ -88,6 +91,11 @@ class Index extends Component
         } catch (\Exception $e) {
             session()->flash('error', 'Checkout failed: ' . $e->getMessage());
         }
+    }
+
+    public function calculateTax()
+    {
+        $this->tax = $this->cart ? round($this->cart->total() * 0.21, 2) : 0;
     }
 
     public function render()

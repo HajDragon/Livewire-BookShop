@@ -44,8 +44,10 @@ class Searchbooks extends Component
 
     public function saveBook(array $bookData): void
     {
-        // Check for duplicates by ISBN or OpenLibrary key
+
+        // Check for duplicates by ISBN or OpenLibrary key, scoped to user
         $exists = book::query()
+            ->where('user_id', auth()->id())
             ->when($bookData['isbn'], fn($q) => $q->where('isbn', $bookData['isbn']))
             ->when($bookData['openlibrary_key'], fn($q) => $q->orWhere('openlibrary_key', $bookData['openlibrary_key']))
             ->exists();
@@ -56,6 +58,7 @@ class Searchbooks extends Component
         }
 
         book::create([
+            'user_id' => auth()->id(),
             'name' => $bookData['title'],
             'author' => $bookData['author'],
             'rating' => 0,

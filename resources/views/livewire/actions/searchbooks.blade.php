@@ -1,4 +1,5 @@
 <div>
+    <livewire:mobile-navbar>
     <livewire:header/>
 
     <div class="p-6">
@@ -113,4 +114,5 @@
         </div>
     @endif
     </div>
+    </livewire:mobile-navbar>
 </div>

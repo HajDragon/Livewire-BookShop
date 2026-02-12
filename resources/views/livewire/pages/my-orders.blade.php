@@ -1,8 +1,9 @@
 <div>
+    <livewire:mobile-navbar>
     <livewire:header/>
-
+    <div>
     <div class="p-6 max-w-6xl mx-auto">
-    <flux:heading size="xl" class="mb-6">My Orders</flux:heading>
+        <flux:heading size="xl" class="mb-6">My Orders</flux:heading>
 
     @if($orders->isNotEmpty())
         <div class="space-y-6">
@@ -74,4 +75,5 @@
         </flux:card>
     @endif
     </div>
+    </livewire:mobile-navbar>
 </div>

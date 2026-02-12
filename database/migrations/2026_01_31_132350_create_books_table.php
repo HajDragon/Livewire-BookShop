@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('books', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->unsignedBigInteger('user_id');
             $table->string('name');
             $table->string('author');
             $table->integer('rating');
@@ -24,6 +25,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('publish_year')->nullable();
             $table->integer('pages')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

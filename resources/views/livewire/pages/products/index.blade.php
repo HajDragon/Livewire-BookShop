@@ -1,5 +1,6 @@
 <div>
     <livewire:header/>
+    <livewire:mobile-navbar>
 
     <div class="p-6 max-w-6xl mx-auto">
         <flux:heading size="xl" class="mb-6">Shopping Cart</flux:heading>
@@ -10,9 +11,9 @@
             <div class="lg:col-span-2 space-y-4">
                 @foreach($cart->items as $item)
                     <flux:card class="p-4">
-                        <div class="flex gap-4">
+                        <div class="flex flex-col sm:flex-row gap-4 items-stretch">
                             {{-- Book Cover --}}
-                            <div class="w-24 h-32 flex-shrink-0">
+                            <div class="w-24 h-32 flex-shrink-0 mx-auto sm:mx-0">
                                 @if($item->book->cover_url)
                                     <img
                                         src="{{ $item->book->cover_url }}"
@@ -26,48 +27,41 @@
                                 @endif
                             </div>
 
-                            {{-- Book Info --}}
-                            <div class="flex-1">
-                                <flux:heading size="lg">{{ $item->book->name }}</flux:heading>
-                                <flux:text class="text-sm">by {{ $item->book->author }}</flux:text>
-
-                                <div class="mt-2">
-                                    <flux:text class="text-sm font-semibold">${{ number_format($item->price, 2) }}</flux:text>
+                            <div class="flex-1 flex flex-col justify-between">
+                                <div>
+                                    <flux:heading size="lg" class="text-base sm:text-lg">{{ $item->book->name }}</flux:heading>
+                                    <flux:text class="text-sm">by {{ $item->book->author }}</flux:text>
+                                    <div class="mt-2">
+                                        <flux:text class="text-sm font-semibold">${{ number_format($item->price, 2) }}</flux:text>
+                                    </div>
                                 </div>
-
-                                {{-- Quantity Controls --}}
-                                <div class="flex items-center gap-2 mt-4">
-                                    <flux:button
-                                        size="sm"
-                                        variant="ghost"
-                                        wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})"
-                                    >
-                                        -
-                                    </flux:button>
-
-                                    <flux:text class="px-4">{{ $item->quantity }}</flux:text>
-
-                                    <flux:button
-                                        size="sm"
-                                        variant="ghost"
-                                        wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})"
-                                    >
-                                        +
-                                    </flux:button>
-
+                                <div class="flex flex-col sm:flex-row items-center gap-2 mt-4 w-full">
+                                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                                        <flux:button
+                                            size="sm"
+                                            variant="ghost"
+                                            wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})"
+                                        >-
+                                        </flux:button>
+                                        <flux:text class="px-4">{{ $item->quantity }}</flux:text>
+                                        <flux:button
+                                            size="sm"
+                                            variant="ghost"
+                                            wire:click="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})"
+                                        >+
+                                        </flux:button>
+                                    </div>
                                     <flux:button
                                         size="sm"
                                         variant="danger"
                                         wire:click="removeItem({{ $item->id }})"
-                                        class="ml-auto"
-                                    >
-                                        Remove
+                                        class="w-full sm:w-auto"
+                                    >Remove
                                     </flux:button>
                                 </div>
                             </div>
 
-                            {{-- Subtotal --}}
-                            <div class="text-right">
+                            <div class="text-right flex items-end justify-end min-w-[80px]">
                                 <flux:text class="font-semibold">
                                     ${{ number_format($item->price * $item->quantity, 2) }}
                                 </flux:text>
@@ -89,12 +83,12 @@
                         </div>
                         <div class="flex justify-between">
                             <flux:text>Tax</flux:text>
-                            <flux:text>$0.00</flux:text>
+                            <flux:text>${{ number_format($tax, 2) }}</flux:text>
                         </div>
                         <flux:separator/>
                         <div class="flex justify-between">
                             <flux:heading size="lg">Total</flux:heading>
-                            <flux:heading size="lg">${{ number_format($cart->total(), 2) }}</flux:heading>
+                            <flux:heading size="lg">${{ number_format($cart->totalWithTax($tax), 2) }}</flux:heading>
                         </div>
                     </div>
 
@@ -136,4 +130,5 @@
         </div>
     @endif
     </div>
+    </livewire:mobile-navbar>
 </div>
