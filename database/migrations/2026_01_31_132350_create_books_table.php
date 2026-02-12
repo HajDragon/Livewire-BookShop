@@ -17,6 +17,13 @@ return new class extends Migration
             $table->string('name');
             $table->string('author');
             $table->integer('rating');
+            $table->string('cover_url')->nullable();
+            $table->string('isbn')->nullable();
+            $table->string('openlibrary_key')->nullable();
+            $table->string('publisher')->nullable();
+            $table->text('description')->nullable();
+            $table->integer('publish_year')->nullable();
+            $table->integer('pages')->nullable();
         });
     }
 

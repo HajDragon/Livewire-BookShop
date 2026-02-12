@@ -2,13 +2,101 @@
 
 namespace App\Livewire\Pages\Products;
 
+use App\Models\Cart;
+use App\Models\Order;
+use App\Models\OrderItem;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Title('Products')]
+#[Title('Shopping Cart')]
 class Index extends Component
 {
-    public string $pageMessage = "Browse all available products";
+    public ?Cart $cart = null;
+
+    public function mount()
+    {
+        $this->loadCart();
+    }
+
+    #[On('cart-updated')]
+    public function loadCart()
+    {
+        $this->cart = auth()->user()->cart()->with('items.book')->first();
+    }
+
+    public function updateQuantity(int $cartItemId, int $quantity)
+    {
+        if ($quantity < 1) {
+            return;
+        }
+
+        $cartItem = $this->cart->items()->find($cartItemId);
+        if ($cartItem) {
+            $cartItem->update(['quantity' => $quantity]);
+            $this->loadCart();
+        }
+    }
+
+    public function removeItem(int $cartItemId)
+    {
+        $cartItem = $this->cart->items()->find($cartItemId);
+        if ($cartItem) {
+            $cartItem->delete();
+            $this->loadCart();
+            session()->flash('message', 'Item removed from cart');
+        }
+    }
+
+    public function checkout()
+    {
+        if (!$this->cart || $this->cart->items->isEmpty()) {
+            session()->flash('error', 'Your cart is empty');
+            return;
+        }
+
+        try {
+            $mollie = \Mollie\Laravel\Facades\Mollie::api();
+
+            $lines = $this->cart->items->map(function ($item) {
+                return [
+                    'name' => $item->book->name,
+                    'quantity' => $item->quantity,
+                    'unitPrice' => [
+                        'currency' => 'USD',
+                        'value' => number_format($item->price, 2, '.', ''),
+                    ],
+                    'totalAmount' => [
+                        'currency' => 'USD',
+                        'value' => number_format($item->price * $item->quantity, 2, '.', ''),
+                    ],
+                    'vatRate' => '0.00',
+                    'vatAmount' => [
+                        'currency' => 'USD',
+                        'value' => '0.00',
+                    ],
+                ];
+            })->toArray();
+
+            $payment = $mollie->payments->create([
+                'amount' => [
+                    'currency' => 'USD',
+                    'value' => number_format($this->cart->total(), 2, '.', ''),
+                ],
+                'description' => 'Order #' . time(),
+                'redirectUrl' => route('checkout.success') . '?payment_id={id}',
+                'webhookUrl' => route('mollie.webhook'),
+                'metadata' => [
+                    'cart_id' => $this->cart->id,
+                    'user_id' => auth()->id(),
+                ],
+            ]);
+
+            return redirect($payment->getCheckoutUrl());
+        } catch (\Exception $e) {
+            session()->flash('error', 'Checkout failed: ' . $e->getMessage());
+        }
+    }
 
     public function render()
     {

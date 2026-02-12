@@ -9,13 +9,24 @@ new class extends Component
     public $username = "";
     public $title;
     public string $pageMessage = "Welcome to your book collection!";
+    public bool $showDeleteModal = false;
+    public ?int $pendingDeleteId = null;
 
     public function mount(){
         $this->username = session('username', 'Guest');
     }
 
 
+    public function ShowDeleteBox(int $bookId): void{
+        $this->pendingDeleteId = $bookId;
+        $this->showDeleteModal = true;
+    }
 
+    public function closeDeleteModal(): void
+    {
+        $this->showDeleteModal = false;
+        $this->pendingDeleteId = null;
+    }
 
     public function updatedUsername(){
         session(['username' => $this->username]);
@@ -28,11 +39,16 @@ new class extends Component
         ];
     }
 
-    public function delete(book $book)
+    public function delete(int $bookId): void
     {
-        sleep(1); // Remove this after testing
-        echo "Deleting book with ID: " . $book->id . "\n";
+        $book = book::find($bookId);
+
+        if (!$book) {
+            return;
+        }
+
         $book->delete();
+        $this->closeDeleteModal();
     }
 
 };
@@ -52,31 +68,53 @@ new class extends Component
             <span class="relative inline-flex size-3 rounded-full bg-sky-500"></span>
         </span>
 
-        <div class="absolute top-2 right-2">
-            <flux:button class="size-12 sm:size-18 hover:scale-95  transition-transform duration-250 ease-in-out" wire:click="delete({{ $book->id }})">Delete</flux:button>
-        </div>
+             <flux:button class="size-12 sm:size-18 hover:scale-95  transition-transform duration-250 ease-in-out" wire:click="ShowDeleteBox({{ $book->id }})">Delete</flux:button>
 
-        <div class="grid grid-cols-2 gap-2">
-            <div class="overflow-visible mb-4 flex items-center justify-center ">
+
+        <div class="grid grid-cols-1 gap-2">
+            <div class="overflow-visible mb-4 flex items-center justify-center rounded-2xl min-h-84">
+                @if($book->cover_url)
+                    <img
+                    src="{{ $book->cover_url }}"
+                    alt="Book Cover"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                    class="rounded-2xl max-w-full h-84 object-contain hover:scale-130 transition-transform duration-300 ease-in-out"
+                    />
+                    <div style="display:none;" class="w-full h-84 flex items-center justify-center">
+                        <flux:text class="text-gray-400">No Cover Available</flux:text>
+                    </div>
+                @else
+                    <div class="w-full h-84 flex items-center justify-center">
+                        <flux:text class="text-gray-400">No Cover Available</flux:text>
+                    </div>
+                @endif
+            </div>
+            {{-- <div class="overflow-visible mb-4 flex items-center justify-center">
                 <img
-                src="https://picsum.photos/200/300?random={{ $book->id }}"
+                src="{{ $book['cover_url'] }}"
                 alt="Book Cover"
                 class="rounded-2xl max-w-full h-62 object-contain hover:scale-130 transition-transform duration-300 ease-in-out"
                 />
-            </div>
-            <div class="overflow-visible mb-4 flex items-center justify-center">
-                <img
-                src="https://picsum.photos/200/300?random={{ $book->id }}"
-                alt="Book Cover"
-                class="rounded-2xl max-w-full h-62 object-contain hover:scale-130 transition-transform duration-300 ease-in-out"
-                />
-            </div>
+            </div> --}}
         </div>
 
-        <flux:header class="text-sm mb-1 sm:text-xl">This book is called&nbsp;<span class="font-bold">{{ $book->name }}</span></flux:header>
-        <hr>
-        <flux:header class="text-sm sm:text-xl font-bold mb-1">Written by&nbsp;<span class="font-bold font-mono">{{ $book->author }}</span></flux:header>
-        <flux:text class="text-base italic">"{{ $quote }}"</flux:text>
+        <flux:heading size="lg" class="mb-2">{{ $book->name }}</flux:heading>
+                <flux:text class="mb-2">by {{ $book->author }}</flux:text>
+
+                <div class="text-sm text-black dark:text-white space-y-1 mb-4">
+                    @if($book->publish_year)
+                        <div>Year: {{ $book->publish_year }}</div>
+                    @endif
+                    @if($book->publisher)
+                        <div>Publisher: {{ $book->publisher }}</div>
+                    @endif
+                    @if($book->pages)
+                        <div>Pages: {{ $book->pages }}</div>
+                    @endif
+                    @if($book->isbn)
+                        <div class="text-xs">ISBN: {{ $book->isbn }}</div>
+                    @endif
+                </div>
     </flux:card>
     </div>
 
@@ -107,4 +145,41 @@ new class extends Component
 
 
     @endforeach
+
+    <flux:modal
+        name="confirm-book-deletion"
+        wire:model="showDeleteModal"
+        class="max-w-lg"
+        backdrop-class="backdrop-blur-sm bg-black/40"
+    >
+        <div class="space-y-6">
+            <div class="flex">
+                <div class="flex-1">
+                    <flux:heading size="lg">Are you sure?</flux:heading>
+
+                    <flux:text class="mt-2">
+                        This book will be deleted permanently.<br>
+                        This action cannot be undone.
+                    </flux:text>
+                </div>
+
+                <div class="-mx-2 -mt-2">
+
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <flux:spacer />
+                <flux:modal.close>
+                    <flux:button variant="ghost" wire:click="closeDeleteModal">Cancel</flux:button>
+                </flux:modal.close>
+                <flux:button
+                    variant="danger"
+                    wire:click="delete({{ $pendingDeleteId ?? 0 }})"
+                >
+                    Delete
+                </flux:button>
+            </div>
+        </div>
+    </flux:modal>
 </div>

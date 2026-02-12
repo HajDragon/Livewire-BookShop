@@ -41,8 +41,9 @@ new class extends Component
 
         <flux:sidebar.nav>
             <flux:sidebar.item icon="home" href="{{ route('home') }}" wire:navigate>Home</flux:sidebar.item>
-            <flux:sidebar.item icon="inbox" badge='{{ $bookCount }}' href="{{ route('products.index') }}" wire:navigate>Products</flux:sidebar.item>
-            <flux:sidebar.item icon="document-text" href="#">Documents</flux:sidebar.item>
+            <flux:sidebar.item icon="shopping-cart" href="{{ route('cart') }}" wire:navigate>Cart</flux:sidebar.item>
+            <flux:sidebar.item icon="magnifying-glass" href="{{ route('search-books') }}" wire:navigate>Search Books</flux:sidebar.item>
+            <flux:sidebar.item icon="document-text" href="{{ route('myorders') }}" wire:navigate>My Orders</flux:sidebar.item>
             <flux:sidebar.item icon="calendar" href="#">Calendar</flux:sidebar.item>
 
             <flux:sidebar.group expandable heading="Favorites" class="grid">
