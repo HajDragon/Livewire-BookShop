@@ -2,7 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
-
+use App\Livewire\Actions\Searchbooks;
+use App\Livewire\Pages\Products;
+use \App\Livewire\Pages\CheckoutSuccess;
+use App\Livewire\Pages\MyOrders;
+use App\Livewire\Pages\MyLibrary;
+use App\livewire\pages\Policy;
 
 Route::get('/', [HomeController::class, 'index'])
     ->middleware(['auth', 'verified']);
@@ -12,23 +17,27 @@ Route::get('/home', [HomeController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('home');
 
-Route::get('/Cart', \App\Livewire\Pages\Products\Index::class)
+Route::get('/Cart', Products\Index::class)
     ->middleware(['auth', 'verified'])
     ->name('cart');
 
-Route::livewire('/books/search', App\Livewire\Actions\Searchbooks::class)
+Route::livewire('/books/search', Searchbooks::class)
     ->middleware('auth')
     ->name('search-books');
 
-Route::get('/checkout/success', \App\Livewire\Pages\CheckoutSuccess::class)
+Route::get('/checkout/success', CheckoutSuccess::class)
     ->middleware(['auth', 'verified'])
     ->name('checkout.success');
 
-Route::get('/myorders', \App\Livewire\Pages\MyOrders::class)
+Route::get('/myorders', MyOrders::class)
     ->middleware(['auth', 'verified'])
     ->name('myorders');
 
-Route::post('/webhook/mollie', [App\Http\Controllers\MollieWebhookController::class, 'handle'])
-    ->name('mollie.webhook');
+Route::get('/my-library', MyLibrary::class)
+    ->middleware(['auth', 'verified'])
+    ->name('my-library');
+
+Route::get('/policy', [Policy::class, 'render'])
+    ->name('policy');
 
 require __DIR__.'/settings.php';

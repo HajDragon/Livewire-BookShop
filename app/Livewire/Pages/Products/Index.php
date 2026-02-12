@@ -12,17 +12,20 @@ use Livewire\Component;
 #[Title('Shopping Cart')]
 class Index extends Component
 {
+    public float $tax = 0;
     public ?Cart $cart = null;
 
     public function mount()
     {
         $this->loadCart();
+
     }
 
     #[On('cart-updated')]
     public function loadCart()
     {
         $this->cart = auth()->user()->cart()->with('items.book')->first();
+        $this->calculateTax();
     }
 
     public function updateQuantity(int $cartItemId, int $quantity)
@@ -56,46 +59,43 @@ class Index extends Component
         }
 
         try {
-            $mollie = \Mollie\Laravel\Facades\Mollie::api();
+            \Stripe\Stripe::setApiKey(config('cashier.secret'));
 
-            $lines = $this->cart->items->map(function ($item) {
+            $lineItems = $this->cart->items->map(function ($item) {
                 return [
-                    'name' => $item->book->name,
+                    'price_data' => [
+                        'currency' => 'usd',
+                        'product_data' => [
+                            'name' => $item->book->name,
+                            'description' => $item->book->author ?? '',
+                        ],
+                        'unit_amount' => (int) ($item->price * 100), // Convert to cents
+                    ],
                     'quantity' => $item->quantity,
-                    'unitPrice' => [
-                        'currency' => 'USD',
-                        'value' => number_format($item->price, 2, '.', ''),
-                    ],
-                    'totalAmount' => [
-                        'currency' => 'USD',
-                        'value' => number_format($item->price * $item->quantity, 2, '.', ''),
-                    ],
-                    'vatRate' => '0.00',
-                    'vatAmount' => [
-                        'currency' => 'USD',
-                        'value' => '0.00',
-                    ],
                 ];
             })->toArray();
 
-            $payment = $mollie->payments->create([
-                'amount' => [
-                    'currency' => 'USD',
-                    'value' => number_format($this->cart->total(), 2, '.', ''),
-                ],
-                'description' => 'Order #' . time(),
-                'redirectUrl' => route('checkout.success') . '?payment_id={id}',
-                'webhookUrl' => route('mollie.webhook'),
+            $session = \Stripe\Checkout\Session::create([
+                'payment_method_types' => ['card'],
+                'line_items' => $lineItems,
+                'mode' => 'payment',
+                'success_url' => route('checkout.success') . '?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => route('cart'),
                 'metadata' => [
                     'cart_id' => $this->cart->id,
                     'user_id' => auth()->id(),
                 ],
             ]);
 
-            return redirect($payment->getCheckoutUrl());
+            return redirect($session->url);
         } catch (\Exception $e) {
             session()->flash('error', 'Checkout failed: ' . $e->getMessage());
         }
+    }
+
+    public function calculateTax()
+    {
+        $this->tax = $this->cart ? round($this->cart->total() * 0.21, 2) : 0;
     }
 
     public function render()

@@ -29,9 +29,10 @@ new class extends Component
         <flux:sidebar.header>
             <flux:sidebar.brand
                 href="#"
-                logo="https://fluxui.dev/img/demo/logo.png"
-                logo:dark="https://fluxui.dev/img/demo/dark-mode-logo.png"
-                name="Acme Inc."
+                logo="{{ asset('storage/Logo/Booklogo.png') }}"
+                logo:dark="{{ asset('storage/Logo/BookLogo.jpg') }}" alt="Logo" class="h-10 w-auto rounded"
+
+                name="Arshia's OpenLibrary"
             />
 
             <flux:sidebar.collapse class="lg:hidden" />
@@ -56,7 +57,7 @@ new class extends Component
         <flux:sidebar.spacer />
 
         <flux:sidebar.nav>
-            <flux:sidebar.item icon="cog-6-tooth" href="#">Settings</flux:sidebar.item>
+            <flux:sidebar.item wire:navigate href="{{ route('policy') }}" icon="lock-closed">Policy</flux:sidebar.item>
             <flux:sidebar.item icon="information-circle" href="#">Help</flux:sidebar.item>
         </flux:sidebar.nav>
 

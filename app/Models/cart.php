@@ -26,4 +26,9 @@ class Cart extends Model
     {
         return $this->items->sum(fn($item) => $item->price * $item->quantity);
     }
+
+    public function totalWithTax(float $tax): float
+    {
+        return $this->total() + $tax;
+    }
 }
