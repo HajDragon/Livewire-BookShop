@@ -1,7 +1,6 @@
 <div>
     <livewire:header/>
     <livewire:mobile-navbar>
-
     <div class="p-6 max-w-6xl mx-auto">
         <flux:heading size="xl" class="mb-6">Shopping Cart</flux:heading>
 

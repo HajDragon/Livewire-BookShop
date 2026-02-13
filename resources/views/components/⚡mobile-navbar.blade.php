@@ -24,7 +24,7 @@ new class extends Component
 ?>
 
 
-<div class="md:hidden lg:hidden min-h-screen bg-white dark:bg-zinc-800 antialiased ">
+<div class="md:hidden lg:hidden min-h-screen bg-white dark:bg-zinc-800 antialiased">
     <flux:sidebar sticky collapsible="mobile" class="md:hidden lg:hidden bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700">
         <flux:sidebar.header>
             <flux:sidebar.brand
@@ -123,10 +123,8 @@ new class extends Component
     </flux:header>
 
     <flux:main class="shadow-md">
-        <div class="shadow-md p-4">
-
-            <flux:heading  size="xl" level="1">Good afternoon, {{ auth()->user()->name }}</flux:heading>
-
+        <div class="shadow-md p-4 md:hidden">
+            <flux:heading size="xl" level="1">Good afternoon, {{ auth()->user()->name }}</flux:heading>
             <flux:text class="mb-6 mt-2 text-base">{{ $pageMessage }}</flux:text>
         </div>
 

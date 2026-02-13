@@ -11,12 +11,22 @@ new class extends Component
 ?>
 <div class="hidden md:block">
     <div class="flex flex-wrap items-center gap-4">
-        <flux:header class="text-3xl font-bold mb-1">{{ __('Dashboard') }}</flux:header>
+        <flux:brand href="{{ route('home') }}" class="inline-flex transition-transform duration-300 ease-in-out hover:scale-120">
+            <div class="inline-flex transition-transform duration-300 ease-in-out hover:scale-120">
+                <img
+                    src="{{ asset('storage/Logo/BookLogo.jpg') }}"
+                    class="h-12 w-auto rounded-lg"
+                    alt="Logo"
+                >
+            </div>
+        </flux:brand>
+
         <flux:navbar>
             <flux:navbar.item wire:navigate href="{{ route('home') }}" icon="home">Home</flux:navbar.item>
             <flux:navbar.item wire:navigate href="{{ route('cart') }}" icon="shopping-cart">Cart</flux:navbar.item>
             <flux:navbar.item wire:navigate href="{{ route('search-books') }}" icon="puzzle-piece">Books</flux:navbar.item>
             <flux:navbar.item wire:navigate href="{{ route('myorders') }}" icon="document-text">Orders</flux:navbar.item>
+            <flux:navbar.item wire:navigate href="{{ route('policy') }}" icon="calendar">Policy</flux:navbar.item>
         </flux:navbar>
         <flux:dropdown position="bottom" align="start">
             <flux:profile avatar="" />
