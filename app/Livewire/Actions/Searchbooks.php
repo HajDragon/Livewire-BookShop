@@ -11,7 +11,9 @@ use Livewire\Component;
 class Searchbooks extends Component
 {
     public string $query = '';
+
     public array $results = [];
+
     public bool $searching = false;
 
     public function updatedQuery(): void
@@ -26,16 +28,17 @@ class Searchbooks extends Component
         if (strlen($this->query) < 3) {
             $this->results = [];
             $this->searching = false;
+
             return;
         }
 
-        $service = new OpenLibraryService();
+        $service = new OpenLibraryService;
         $books = $service->search($this->query);
 
         \Log::info('Search results', ['query' => $this->query, 'count' => count($books), 'books' => $books]);
 
         $this->results = array_map(
-            fn($book) => $service->transformBook($book),
+            fn ($book) => $service->transformBook($book),
             $books
         );
 
@@ -48,12 +51,13 @@ class Searchbooks extends Component
         // Check for duplicates by ISBN or OpenLibrary key, scoped to user
         $exists = book::query()
             ->where('user_id', auth()->id())
-            ->when($bookData['isbn'], fn($q) => $q->where('isbn', $bookData['isbn']))
-            ->when($bookData['openlibrary_key'], fn($q) => $q->orWhere('openlibrary_key', $bookData['openlibrary_key']))
+            ->when($bookData['isbn'], fn ($q) => $q->where('isbn', $bookData['isbn']))
+            ->when($bookData['openlibrary_key'], fn ($q) => $q->orWhere('openlibrary_key', $bookData['openlibrary_key']))
             ->exists();
 
         if ($exists) {
             session()->flash('error', 'Book already exists in your library.');
+
             return;
         }
 
@@ -79,12 +83,13 @@ class Searchbooks extends Component
     {
         // Find or create the book first
         $book = book::query()
-            ->when($bookData['isbn'], fn($q) => $q->where('isbn', $bookData['isbn']))
-            ->when($bookData['openlibrary_key'], fn($q) => $q->orWhere('openlibrary_key', $bookData['openlibrary_key']))
+            ->when($bookData['isbn'], fn ($q) => $q->where('isbn', $bookData['isbn']))
+            ->when($bookData['openlibrary_key'], fn ($q) => $q->orWhere('openlibrary_key', $bookData['openlibrary_key']))
             ->first();
 
-        if (!$book) {
+        if (! $book) {
             $book = book::create([
+                'user_id' => auth()->id(),
                 'name' => $bookData['title'],
                 'author' => $bookData['author'],
                 'rating' => 0,

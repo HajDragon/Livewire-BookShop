@@ -1,6 +1,6 @@
 <div>
-    <livewire:mobile-navbar>
     <livewire:header/>
+    <livewire:mobile-navbar>
     <div>
     <div class="p-6 max-w-6xl mx-auto">
         <flux:heading size="xl" class="mb-6">My Orders</flux:heading>

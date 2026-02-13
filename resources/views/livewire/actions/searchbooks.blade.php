@@ -1,6 +1,6 @@
 <div>
-    <livewire:mobile-navbar>
     <livewire:header/>
+    <livewire:mobile-navbar>
 
     <div class="p-6">
     <flux:heading size="xl" class="mb-6">Search Books</flux:heading>
