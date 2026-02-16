@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\book;
 use App\Http\Requests\StorebookRequest;
 use App\Http\Requests\UpdatebookRequest;
+use App\Models\book;
 
 class BookController extends Controller
 {

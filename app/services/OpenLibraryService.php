@@ -9,13 +9,15 @@ use Illuminate\Support\Facades\Log;
 class OpenLibraryService
 {
     private const BASE_URL = 'https://openlibrary.org';
+
     private const COVERS_URL = 'https://covers.openlibrary.org/b';
+
     private const TIMEOUT = 10;
 
     public function search(string $query, int $limit = 150): array
     {
         try {
-            $url = self::BASE_URL . '/search.json';
+            $url = self::BASE_URL.'/search.json';
             $params = [
                 'q' => $query,
                 'limit' => $limit,
@@ -39,13 +41,16 @@ class OpenLibraryService
             if ($response->successful()) {
                 $data = $response->json('docs', []);
                 Log::info('Parsed docs', ['count' => count($data), 'first_item' => $data[0] ?? null]);
+
                 return $data;
             }
 
             Log::warning('OpenLibrary search failed', ['status' => $response->status(), 'body' => $response->body()]);
+
             return [];
         } catch (\Exception $e) {
             Log::error('OpenLibrary search exception', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+
             return [];
         }
     }
@@ -53,11 +58,11 @@ class OpenLibraryService
     public function getCoverUrl(?string $isbn = null, ?int $coverId = null, string $size = 'M'): ?string
     {
         if ($isbn) {
-            return self::COVERS_URL . "/isbn/{$isbn}-{$size}.jpg";
+            return self::COVERS_URL."/isbn/{$isbn}-{$size}.jpg";
         }
 
         if ($coverId) {
-            return self::COVERS_URL . "/id/{$coverId}-{$size}.jpg";
+            return self::COVERS_URL."/id/{$coverId}-{$size}.jpg";
         }
 
         return null;
