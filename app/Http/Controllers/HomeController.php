@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 class HomeController extends Controller
 {
     public $titleDashboard = 'This comes from dashboard controller';
-    public function index(){
-        return view('dashboard',[
-            'titleDashboard' => $this->titleDashboard
+
+    public function index()
+    {
+        return view('dashboard', [
+            'titleDashboard' => $this->titleDashboard,
 
         ]);
     }
-
 }

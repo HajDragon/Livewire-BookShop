@@ -17,7 +17,7 @@
                             </flux:text>
                         </div>
                         <div class="text-right">
-                            <flux:text class="font-semibold text-green-600">{{ ucfirst($order->status) }}</flux:text>
+                            <flux:text class="font-semibold text-green-600">{{ $order->status->label() }}</flux:text>
                             <flux:heading size="lg" class="text-gray-900 dark:text-white">
                                 ${{ number_format($order->total, 2) }}
                             </flux:heading>

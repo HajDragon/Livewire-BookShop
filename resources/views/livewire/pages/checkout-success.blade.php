@@ -23,7 +23,7 @@
                         </div>
                         <div class="flex justify-between">
                             <flux:text class="font-semibold">Status:</flux:text>
-                            <flux:text class="text-green-600">{{ ucfirst($order->status) }}</flux:text>
+                            <flux:text class="text-green-600">{{ $order->status->label() }}</flux:text>
                         </div>
                     </div>
                     <flux:separator class="my-4"/>

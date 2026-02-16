@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Pages;
 
+use App\Enums\OrderStatus;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -12,6 +13,7 @@ use Livewire\Component;
 class CheckoutSuccess extends Component
 {
     public ?string $sessionId = null;
+
     public ?Order $order = null;
 
     public function mount()
@@ -33,6 +35,7 @@ class CheckoutSuccess extends Component
             // Check if payment is successful
             if ($session->payment_status !== 'paid') {
                 session()->flash('error', 'Payment not completed');
+
                 return;
             }
 
@@ -41,19 +44,20 @@ class CheckoutSuccess extends Component
 
             if ($existingOrder) {
                 $this->order = $existingOrder;
+
                 return;
             }
 
             // Get cart from session metadata
             $cartId = $session->metadata->cart_id ?? null;
 
-            if (!$cartId) {
+            if (! $cartId) {
                 return;
             }
 
             $cart = Cart::with('items.book')->find($cartId);
 
-            if (!$cart) {
+            if (! $cart) {
                 return;
             }
 
@@ -61,7 +65,7 @@ class CheckoutSuccess extends Component
             $this->order = Order::create([
                 'user_id' => auth()->id(),
                 'stripe_payment_intent_id' => $session->payment_intent,
-                'status' => 'completed',
+                'status' => OrderStatus::Completed,
                 'total' => $cart->total(),
             ]);
 
@@ -82,7 +86,7 @@ class CheckoutSuccess extends Component
             $cart->delete();
 
         } catch (\Exception $e) {
-            session()->flash('error', 'Failed to process order: ' . $e->getMessage());
+            session()->flash('error', 'Failed to process order: '.$e->getMessage());
         }
     }
 

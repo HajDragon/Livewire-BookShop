@@ -45,6 +45,9 @@ new class extends Component
             <flux:sidebar.item icon="shopping-cart" href="{{ route('cart') }}" wire:navigate>Cart</flux:sidebar.item>
             <flux:sidebar.item icon="magnifying-glass" href="{{ route('search-books') }}" wire:navigate>Search Books</flux:sidebar.item>
             <flux:sidebar.item icon="document-text" href="{{ route('myorders') }}" wire:navigate>My Orders</flux:sidebar.item>
+            @if(auth()->user()->is_admin)
+                <flux:sidebar.item icon="shield-check" href="{{ route('admin.dashboard') }}" wire:navigate>Admin Panel</flux:sidebar.item>
+            @endif
             <flux:sidebar.item icon="calendar" href="#">Calendar</flux:sidebar.item>
 
             <flux:sidebar.group expandable heading="Favorites" class="grid">
