@@ -1,4 +1,4 @@
-<div>
+    <div>
     <livewire:header />
     <livewire:mobile-navbar>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -56,7 +56,29 @@
             </div>
 
             <!-- Orders Table -->
+
             <flux:card>
+                <flux:dropdown position="bottom" align="start">
+                    <flux:button icon:trailing="chevron-down">Sort By</flux:button>
+
+                    <flux:menu>
+                        <flux:menu.heading>Sort by</flux:menu.heading>
+                        <flux:menu.radio.group wire:model.live="sortBy">
+                            <flux:menu.radio value="priority">Priority</flux:menu.radio>
+                            <flux:menu.radio value="date">Date</flux:menu.radio>
+                        </flux:menu.radio.group>
+
+                        <flux:menu.separator />
+
+                        <flux:menu.heading>Filter by status</flux:menu.heading>
+                        <flux:menu.radio.group wire:model.live="statusFilter">
+                            <flux:menu.radio value="all">All</flux:menu.radio>
+                            @foreach(\App\Enums\OrderStatus::cases() as $status)
+                                <flux:menu.radio value="{{ $status->value }}">{{ $status->label() }}</flux:menu.radio>
+                            @endforeach
+                        </flux:menu.radio.group>
+                    </flux:menu>
+                </flux:dropdown>
                 <div class="p-6">
                     <flux:heading size="lg" class="mb-6">All Orders</flux:heading>
 
@@ -78,16 +100,24 @@
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
+                                <tbody class="text-black dark:text-white divide-y divide-gray-200">
                                     @foreach($this->orders as $order)
-                                        <tr wire:key="order-{{ $order->id }}">
-                                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        <tr
+                                            wire:key="order-{{ $order->id }}"
+                                            @class(array: [
+                                                'bg-red-500' => $order->status === \App\Enums\OrderStatus::Cancelled,
+                                                'bg-green-500' => $order->status === \App\Enums\OrderStatus::Completed,
+                                                'bg-blue-500' => $order->status === \App\Enums\OrderStatus::Processing,
+                                                'bg-yellow-500' => $order->status === \App\Enums\OrderStatus::Pending,
+                                            ])
+                                        >
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
                                                 #{{ $order->id }}
                                             </td>
-                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm ">
                                                 {{ $order->user->name }}
                                             </td>
-                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm ">
                                                 ${{ number_format($order->total, 2) }}
                                             </td>
                                             <td class="px-4 py-4 whitespace-nowrap">
@@ -107,20 +137,28 @@
                                                     class="text-sm rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                                 >
                                                     <option value="low" {{ $order->priority->value === 'low' ? 'selected' : '' }}>Low</option>
-                                                    <option value="normal" {{ $order->priority->value === 'normal' ? 'selected' : '' }}>Normal</option>
-                                                    <option value="high" {{ $order->priority->value === 'high' ? 'selected' : '' }}>High</option>
+                                                    <option class="bg-yellow-500"value="normal" {{ $order->priority->value === 'normal' ? 'selected' : '' }}>Normal</option>
+                                                    <option class="bg-red-500" value="high" {{ $order->priority->value === 'high' ? 'selected' : '' }}>High</option>
                                                 </select>
                                             </td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {{ $order->created_at->format('M d, Y') }}
                                             </td>
+                                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <flux:button href="{{ route('admin.orders.show', $order->id) }}"  class="text-blue-500 hover:animate-bounce hover:scale-110 transition-transform duration-200">
+                                                view order
+                                                </flux:button>
+                                            </td>
+
                                             <td class="px-4 py-4 whitespace-nowrap text-sm">
                                                 <flux:button
+
                                                     wire:click="deleteOrder({{ $order->id }})"
-                                                    wire:confirm="Are you sure you want to delete this order?"
-                                                    variant="danger"
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="deleteOrder"
+                                                    class="hover:scale-110 transition-transform duration-200 hover:animate-pulse"
                                                     size="sm"
-                                                >
+                                                    >
                                                     Delete
                                                 </flux:button>
                                             </td>

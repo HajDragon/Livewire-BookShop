@@ -44,6 +44,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Admin routes
     Route::get('/admin', AdminDashboard::class)
         ->name('admin.dashboard');
+    Route::get('/admin/orders/{order}', \App\Livewire\Pages\AdminOrders::class)
+        ->name('admin.orders.show');
+    // Order update/add/remove are handled by the AdminOrders Livewire component now.
 });
 
 require __DIR__.'/settings.php';

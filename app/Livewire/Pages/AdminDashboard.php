@@ -15,6 +15,8 @@ use Livewire\Component;
 #[Title('Admin Dashboard')]
 class AdminDashboard extends Component
 {
+    public string $sortBy = 'priority';
+    public string $statusFilter = 'all';
     #[Computed]
     public function totalOrders(): int
     {
@@ -70,9 +72,27 @@ class AdminDashboard extends Component
     #[Computed]
     public function orders(): \Illuminate\Database\Eloquent\Collection
     {
-        return Order::with('user')
-            ->latest()
-            ->get();
+        $query = Order::with('user');
+
+        if ($this->statusFilter !== 'all') {
+            $query->where('status', OrderStatus::from($this->statusFilter));
+        }
+
+        if ($this->sortBy === 'date') {
+            return $query->orderBy('created_at', 'desc')->get();
+        }
+
+        // Priority then latest
+        return $query->orderByRaw(
+            'CASE priority WHEN ? THEN 1 WHEN ? THEN 2 WHEN ? THEN 3 ELSE 4 END',
+            [
+                OrderPriority::High->value,
+                OrderPriority::Normal->value,
+                OrderPriority::Low->value,
+            ]
+        )
+        ->latest()
+        ->get();
     }
 
     public function updateStatus(int $orderId, string $status): void
@@ -107,6 +127,7 @@ class AdminDashboard extends Component
 
         $this->authorize('delete', $order);
 
+        usleep(500000);
         $order->delete();
 
         $this->dispatch('order-deleted');

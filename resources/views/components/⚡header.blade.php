@@ -26,10 +26,10 @@ new class extends Component
             <flux:navbar.item wire:navigate href="{{ route('cart') }}" icon="shopping-cart">Cart</flux:navbar.item>
             <flux:navbar.item wire:navigate href="{{ route('search-books') }}" icon="puzzle-piece">Books</flux:navbar.item>
             <flux:navbar.item wire:navigate href="{{ route('myorders') }}" icon="document-text">Orders</flux:navbar.item>
+            <flux:navbar.item wire:navigate href="{{ route('policy') }}" icon="calendar">Policy</flux:navbar.item>
             @if (auth()->user()->is_admin)
                 <flux:navbar.item wire:navigate href="{{ route('admin.dashboard') }}" icon="shield-check">Admin Panel</flux:navbar.item>
             @endif
-            <flux:navbar.item wire:navigate href="{{ route('policy') }}" icon="calendar">Policy</flux:navbar.item>
         </flux:navbar>
         <flux:dropdown position="bottom" align="start">
             <flux:profile avatar="" />
