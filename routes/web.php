@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HomeController;
 use App\Livewire\Actions\Searchbooks;
+use App\Livewire\Pages\AdminDashboard;
 use App\Livewire\Pages\CheckoutSuccess;
 use App\Livewire\Pages\MyLibrary;
 use App\Livewire\Pages\MyOrders;
@@ -39,12 +40,10 @@ Route::get('/my-library', MyLibrary::class)
 Route::get('/policy', Policy::class)
     ->name('policy');
 
-
 Route::middleware(['auth', 'admin'])->group(function () {
     // Admin routes
-    route::get('/admin', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/admin', AdminDashboard::class)
+        ->name('admin.dashboard');
 });
 
 require __DIR__.'/settings.php';

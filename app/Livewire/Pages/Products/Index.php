@@ -3,8 +3,6 @@
 namespace App\Livewire\Pages\Products;
 
 use App\Models\Cart;
-use App\Models\Order;
-use App\Models\OrderItem;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -13,6 +11,7 @@ use Livewire\Component;
 class Index extends Component
 {
     public float $tax = 0;
+
     public ?Cart $cart = null;
 
     public function mount()
@@ -53,8 +52,9 @@ class Index extends Component
 
     public function checkout()
     {
-        if (!$this->cart || $this->cart->items->isEmpty()) {
+        if (! $this->cart || $this->cart->items->isEmpty()) {
             session()->flash('error', 'Your cart is empty');
+
             return;
         }
 
@@ -79,7 +79,7 @@ class Index extends Component
                 'payment_method_types' => ['card'],
                 'line_items' => $lineItems,
                 'mode' => 'payment',
-                'success_url' => route('checkout.success') . '?session_id={CHECKOUT_SESSION_ID}',
+                'success_url' => route('checkout.success').'?session_id={CHECKOUT_SESSION_ID}',
                 'cancel_url' => route('cart'),
                 'metadata' => [
                     'cart_id' => $this->cart->id,
@@ -89,7 +89,7 @@ class Index extends Component
 
             return redirect($session->url);
         } catch (\Exception $e) {
-            session()->flash('error', 'Checkout failed: ' . $e->getMessage());
+            session()->flash('error', 'Checkout failed: '.$e->getMessage());
         }
     }
 
